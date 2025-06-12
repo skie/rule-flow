@@ -24,7 +24,6 @@ class ValidationRuleConverter
      * @var array<string, string>
      */
     protected array $ruleMapping = [
-        // Core CakePHP validation rules
         'notBlank' => 'convertNotBlank',
         'notEmpty' => 'convertNotEmpty',
         'comparison' => 'convertComparison',
@@ -120,23 +119,18 @@ class ValidationRuleConverter
         $rule = $validationRule->get('rule');
 
         if (is_string($rule)) {
-            // Method-based rule: $validator->greaterThan('age', 18)
             $actualRuleName = $rule;
             $ruleArgs = $validationRule->get('pass') ?? [];
         } elseif (is_array($rule)) {
-            // Array-based rule: ['greaterThan', 18] or ['comparison', '>', 18]
             $actualRuleName = array_shift($rule);
-            $ruleArgs = $rule; // Arguments are the remaining elements
+            $ruleArgs = $rule;
         } else {
-            // Skip callable rules for now
             return null;
         }
 
-        // If we have a rule name from the array, use it, otherwise use the key name
         $ruleNameToUse = $actualRuleName ?? $ruleName;
 
         if (!isset($this->ruleMapping[$ruleNameToUse])) {
-            // Skip unsupported rules
             return null;
         }
 
@@ -416,7 +410,6 @@ class ValidationRuleConverter
         $max = $args[1] ?? 100;
         $fieldVar = jl::var($fieldName);
 
-        // Use betweenInclusive for more efficient JsonLogic
         return jl::betweenInclusive($min, $fieldVar, $max);
     }
 
@@ -432,7 +425,6 @@ class ValidationRuleConverter
         $minCount = $args[0] ?? 1;
         $fieldVar = jl::var($fieldName);
 
-        // For simple array length check, use length directly
         if ($minCount === 1) {
             return jl::greaterThanOrEqual(
                 jl::length($fieldVar),
@@ -440,7 +432,6 @@ class ValidationRuleConverter
             );
         }
 
-        // For counting non-empty elements, use reduce
         $countRule = jl::reduce(
             $fieldVar,
             jl::add([
@@ -469,7 +460,6 @@ class ValidationRuleConverter
         $maxCount = $args[0] ?? 10;
         $fieldVar = jl::var($fieldName);
 
-        // For simple array length check, use length directly
         if ($maxCount >= 0) {
             return jl::lessThanOrEqual(
                 jl::length($fieldVar),
@@ -477,7 +467,6 @@ class ValidationRuleConverter
             );
         }
 
-        // For counting non-empty elements, use reduce
         $countRule = jl::reduce(
             $fieldVar,
             jl::add([
@@ -506,13 +495,11 @@ class ValidationRuleConverter
         $options = $args[0] ?? [];
         $fieldVar = jl::var($fieldName);
 
-        // Use filter to check if all selected values are in allowed options
         $validSelections = jl::filter(
             $fieldVar,
             jl::in(jl::var('current'), $options),
         );
 
-        // Check if filtered array has same length as original (all values are valid)
         return jl::equals(
             jl::length($validSelections),
             jl::length($fieldVar),
