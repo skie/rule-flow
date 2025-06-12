@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace RuleFlow\Test\TestCase\Documentation;
 
+use DateInterval;
+use DateTime;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use RuleFlow\CustomRuleInterface;
@@ -52,7 +54,7 @@ class CustomRuleExamplesTest extends TestCase
     public function testAgeVerificationRuleExample(): void
     {
         // Create the AgeVerificationRule class from documentation
-        $ageRule = new class(18) extends AbstractJsonLogicRule implements CustomRuleInterface {
+        $ageRule = new class (18) extends AbstractJsonLogicRule implements CustomRuleInterface {
             protected int $minAge;
 
             public function __construct(int $minAge = 18)
@@ -68,7 +70,8 @@ class CustomRuleExamplesTest extends TestCase
                     return false;
                 }
 
-                $age = (new \DateTime())->diff(new \DateTime($birthDate))->y;
+                $age = (new DateTime())->diff(new DateTime($birthDate))->y;
+
                 return $age >= $this->minAge;
             }
 
@@ -94,7 +97,7 @@ class CustomRuleExamplesTest extends TestCase
         $this->assertFalse($result, 'Person born in 2010 should be under 18');
 
         // Test case 3: Edge case - exactly 18
-        $eighteenYearsAgo = (new \DateTime())->sub(new \DateInterval('P18Y'))->format('Y-m-d');
+        $eighteenYearsAgo = (new DateTime())->sub(new DateInterval('P18Y'))->format('Y-m-d');
         $rule = ['age_verification' => $eighteenYearsAgo];
         $data = ['birth_date' => $eighteenYearsAgo];
         $result = $this->evaluator->evaluate($rule, $data);
@@ -107,7 +110,7 @@ class CustomRuleExamplesTest extends TestCase
         $this->assertFalse($result, 'Empty birth date should be invalid');
 
         // Test case 5: Different minimum age (21)
-        $ageRule21 = new class(21) extends AbstractJsonLogicRule implements CustomRuleInterface {
+        $ageRule21 = new class (21) extends AbstractJsonLogicRule implements CustomRuleInterface {
             protected int $minAge;
 
             public function __construct(int $minAge = 21)
@@ -123,7 +126,8 @@ class CustomRuleExamplesTest extends TestCase
                     return false;
                 }
 
-                $age = (new \DateTime())->diff(new \DateTime($birthDate))->y;
+                $age = (new DateTime())->diff(new DateTime($birthDate))->y;
+
                 return $age >= $this->minAge;
             }
 
@@ -246,7 +250,7 @@ class CustomRuleExamplesTest extends TestCase
         CustomRuleRegistry::registerRule(MatchRule::class);
 
         // Create AgeVerificationRule for this test
-        $ageRule = new class(18) extends AbstractJsonLogicRule implements CustomRuleInterface {
+        $ageRule = new class (18) extends AbstractJsonLogicRule implements CustomRuleInterface {
             protected int $minAge;
 
             public function __construct(int $minAge = 18)
@@ -262,7 +266,8 @@ class CustomRuleExamplesTest extends TestCase
                     return false;
                 }
 
-                $age = (new \DateTime())->diff(new \DateTime($birthDate))->y;
+                $age = (new DateTime())->diff(new DateTime($birthDate))->y;
+
                 return $age >= $this->minAge;
             }
 
@@ -277,16 +282,16 @@ class CustomRuleExamplesTest extends TestCase
         // Test the controller example from documentation
         $rules = [
             'email' => [
-                ['match' => [['var' => 'email'], '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$']]
+                ['match' => [['var' => 'email'], '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$']],
             ],
             'birth_date' => [
-                ['age_verification' => ['var' => 'birth_date']]
-            ]
+                ['age_verification' => ['var' => 'birth_date']],
+            ],
         ];
 
         $data = [
             'email' => 'user@example.com',
-            'birth_date' => '1990-05-15'
+            'birth_date' => '1990-05-15',
         ];
 
         // Test email validation
@@ -300,7 +305,7 @@ class CustomRuleExamplesTest extends TestCase
         // Test with invalid data
         $invalidData = [
             'email' => 'invalid.email',
-            'birth_date' => '2010-05-15'
+            'birth_date' => '2010-05-15',
         ];
 
         $emailResult = $this->evaluator->evaluate($rules['email'][0], $invalidData);
@@ -334,7 +339,7 @@ class CustomRuleExamplesTest extends TestCase
             $this->assertEquals(
                 $testCase['expected'],
                 $result,
-                "Email '{$testCase['email']}' should " . ($testCase['expected'] ? 'pass' : 'fail')
+                "Email '{$testCase['email']}' should " . ($testCase['expected'] ? 'pass' : 'fail'),
             );
         }
 
@@ -355,7 +360,7 @@ class CustomRuleExamplesTest extends TestCase
             $this->assertEquals(
                 $testCase['expected'],
                 $result,
-                "Phone '{$testCase['phone']}' should " . ($testCase['expected'] ? 'pass' : 'fail')
+                "Phone '{$testCase['phone']}' should " . ($testCase['expected'] ? 'pass' : 'fail'),
             );
         }
     }
@@ -366,7 +371,7 @@ class CustomRuleExamplesTest extends TestCase
     public function testDebuggingExamples(): void
     {
         // Create AgeVerificationRule for debugging test
-        $ageRule = new class(18) extends AbstractJsonLogicRule implements CustomRuleInterface {
+        $ageRule = new class (18) extends AbstractJsonLogicRule implements CustomRuleInterface {
             protected int $minAge;
 
             public function __construct(int $minAge = 18)
@@ -382,7 +387,8 @@ class CustomRuleExamplesTest extends TestCase
                     return false;
                 }
 
-                $age = (new \DateTime())->diff(new \DateTime($birthDate))->y;
+                $age = (new DateTime())->diff(new DateTime($birthDate))->y;
+
                 return $age >= $this->minAge;
             }
 
@@ -426,7 +432,7 @@ class CustomRuleExamplesTest extends TestCase
         CustomRuleRegistry::registerRule(MatchRule::class);
 
         // Create AgeVerificationRule
-        $ageRule = new class(18) extends AbstractJsonLogicRule implements CustomRuleInterface {
+        $ageRule = new class (18) extends AbstractJsonLogicRule implements CustomRuleInterface {
             protected int $minAge;
 
             public function __construct(int $minAge = 18)
@@ -442,7 +448,8 @@ class CustomRuleExamplesTest extends TestCase
                     return false;
                 }
 
-                $age = (new \DateTime())->diff(new \DateTime($birthDate))->y;
+                $age = (new DateTime())->diff(new DateTime($birthDate))->y;
+
                 return $age >= $this->minAge;
             }
 
@@ -459,7 +466,7 @@ class CustomRuleExamplesTest extends TestCase
             'email' => 'user@example.com',
             'password' => 'MySecurePass123',
             'birth_date' => '1990-05-15',
-            'username' => 'johndoe'
+            'username' => 'johndoe',
         ];
 
         // Email validation
@@ -480,7 +487,7 @@ class CustomRuleExamplesTest extends TestCase
         // Username length validation
         $usernameLengthRule = ['and' => [
             ['>=' => [['length' => ['var' => 'username']], 3]],
-            ['<=' => [['length' => ['var' => 'username']], 20]]
+            ['<=' => [['length' => ['var' => 'username']], 20]],
         ]];
         $usernameValid = $this->evaluator->evaluate($usernameLengthRule, $userData);
         $this->assertTrue($usernameValid, 'Username should meet length requirements');
@@ -492,8 +499,8 @@ class CustomRuleExamplesTest extends TestCase
             ['age_verification' => ['var' => 'birth_date']],
             ['and' => [
                 ['>=' => [['length' => ['var' => 'username']], 3]],
-                ['<=' => [['length' => ['var' => 'username']], 20]]
-            ]]
+                ['<=' => [['length' => ['var' => 'username']], 20]],
+            ]],
         ]];
 
         $allValid = $this->evaluator->evaluate($combinedRule, $userData);
@@ -504,7 +511,7 @@ class CustomRuleExamplesTest extends TestCase
             'email' => 'invalid.email',
             'password' => 'short',
             'birth_date' => '2010-05-15',
-            'username' => 'ab'
+            'username' => 'ab',
         ];
 
         $allValid = $this->evaluator->evaluate($combinedRule, $invalidUserData);

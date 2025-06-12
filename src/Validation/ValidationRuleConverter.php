@@ -92,7 +92,8 @@ class ValidationRuleConverter
         foreach ($validationSet as $ruleName => $validationRule) {
             $rule = $this->convertValidationRule($fieldName, $ruleName, $validationRule);
             if ($rule !== null) {
-                $message = $validationRule->get('message') ?? "Validation failed for field '{$fieldName}' with rule '{$ruleName}'";
+                $message = $validationRule->get('message') ??
+                    "Validation failed for field '{$fieldName}' with rule '{$ruleName}'";
                 $jsonLogicRules[] = [
                     'rule' => $rule->toArray(),
                     'message' => $message,
@@ -111,8 +112,11 @@ class ValidationRuleConverter
      * @param \Cake\Validation\ValidationRule $validationRule Validation rule
      * @return \RuleFlow\Rule\JsonLogicRuleInterface|null
      */
-    public function convertValidationRule(string $fieldName, string $ruleName, ValidationRule $validationRule): ?JsonLogicRuleInterface
-    {
+    public function convertValidationRule(
+        string $fieldName,
+        string $ruleName,
+        ValidationRule $validationRule,
+    ): ?JsonLogicRuleInterface {
         $rule = $validationRule->get('rule');
 
         if (is_string($rule)) {

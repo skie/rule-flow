@@ -5,26 +5,26 @@ QUnit.module('FormWatcher Core Tests', function (hooks) {
     hooks.beforeEach(function () {
         const fixture = document.getElementById('qunit-fixture');
         fixture.innerHTML = `
-            <form id="test-form">
-                <input type="text" name="username" value="">
-                <input type="email" name="email" value="">
-                <input type="password" name="password" value="">
-                <input type="checkbox" name="terms" value="1">
-                <input type="radio" name="gender" value="male">
-                <input type="radio" name="gender" value="female">
-                <select name="country">
-                    <option value="">Select Country</option>
-                    <option value="us">United States</option>
-                    <option value="ca">Canada</option>
-                </select>
-                <textarea name="bio"></textarea>
+            < form id = "test-form" >
+                < input type = "text" name = "username" value = "" >
+                < input type = "email" name = "email" value = "" >
+                < input type = "password" name = "password" value = "" >
+                < input type = "checkbox" name = "terms" value = "1" >
+                < input type = "radio" name = "gender" value = "male" >
+                < input type = "radio" name = "gender" value = "female" >
+                < select name = "country" >
+                    < option value = "" > Select Country < / option >
+                    < option value = "us" > United States < / option >
+                    < option value = "ca" > Canada < / option >
+                <  / select >
+                < textarea name = "bio" > < / textarea >
 
-                <!-- Collection fields -->
-                <input type="text" name="collection[0][name]" value="">
-                <input type="email" name="collection[0][email]" value="">
-                <input type="text" name="collection[1][name]" value="">
-                <input type="email" name="collection[1][email]" value="">
-            </form>
+                < !--Collection fields-- >
+                < input type = "text" name = "collection[0][name]" value = "" >
+                < input type = "email" name = "collection[0][email]" value = "" >
+                < input type = "text" name = "collection[1][name]" value = "" >
+                < input type = "email" name = "collection[1][email]" value = "" >
+            <  / form >
         `;
         testForm = document.getElementById('test-form');
     });

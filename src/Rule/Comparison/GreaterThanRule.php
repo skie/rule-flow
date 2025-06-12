@@ -33,8 +33,10 @@ class GreaterThanRule extends AbstractJsonLogicRule
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|scalar $left Left operand
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|scalar $right Right operand
      */
-    public function __construct(JsonLogicRuleInterface|array|string|int|float|bool $left, JsonLogicRuleInterface|array|string|int|float|bool $right)
-    {
+    public function __construct(
+        JsonLogicRuleInterface|array|string|int|float|bool $left,
+        JsonLogicRuleInterface|array|string|int|float|bool $right,
+    ) {
         $this->operator = '>';
         $this->left = $left;
         $this->right = $right;

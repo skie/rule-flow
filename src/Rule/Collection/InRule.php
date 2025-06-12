@@ -33,8 +33,10 @@ class InRule extends AbstractJsonLogicRule
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|scalar $value Value to search for
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|string $collection Collection to search in
      */
-    public function __construct(JsonLogicRuleInterface|array|string|int|float|bool $value, JsonLogicRuleInterface|array|string $collection)
-    {
+    public function __construct(
+        JsonLogicRuleInterface|array|string|int|float|bool $value,
+        JsonLogicRuleInterface|array|string $collection,
+    ) {
         $this->operator = 'in';
         $this->value = $value;
         $this->collection = $collection;

@@ -521,8 +521,10 @@ class JsonLogicRuleFactory
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array $condition Condition to evaluate
      * @return \RuleFlow\Rule\Logic\NoneRule Rule
      */
-    public static function none(JsonLogicRuleInterface|array $collection, JsonLogicRuleInterface|array $condition): NoneRule
-    {
+    public static function none(
+        JsonLogicRuleInterface|array $collection,
+        JsonLogicRuleInterface|array $condition,
+    ): NoneRule {
         return new NoneRule($collection, $condition);
     }
 

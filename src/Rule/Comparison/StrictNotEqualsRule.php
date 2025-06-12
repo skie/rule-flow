@@ -33,8 +33,10 @@ class StrictNotEqualsRule extends AbstractJsonLogicRule
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|scalar|null $left Left operand
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|scalar|null $right Right operand
      */
-    public function __construct(JsonLogicRuleInterface|array|string|int|float|bool|null $left, JsonLogicRuleInterface|array|string|int|float|bool|null $right)
-    {
+    public function __construct(
+        JsonLogicRuleInterface|array|string|int|float|bool|null $left,
+        JsonLogicRuleInterface|array|string|int|float|bool|null $right,
+    ) {
         $this->operator = '!==';
         $this->left = $left;
         $this->right = $right;

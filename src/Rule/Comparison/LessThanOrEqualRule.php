@@ -42,8 +42,11 @@ class LessThanOrEqualRule extends AbstractJsonLogicRule
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|scalar $second Second operand
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|scalar|null $third Third operand (for between operation)
      */
-    public function __construct(JsonLogicRuleInterface|array|string|int|float|bool $first, JsonLogicRuleInterface|array|string|int|float|bool $second, JsonLogicRuleInterface|array|string|int|float|bool|null $third = null)
-    {
+    public function __construct(
+        JsonLogicRuleInterface|array|string|int|float|bool $first,
+        JsonLogicRuleInterface|array|string|int|float|bool $second,
+        JsonLogicRuleInterface|array|string|int|float|bool|null $third = null,
+    ) {
         $this->operator = '<=';
         $this->first = $first;
         $this->second = $second;

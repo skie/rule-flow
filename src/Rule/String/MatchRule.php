@@ -43,8 +43,11 @@ class MatchRule extends AbstractJsonLogicRule implements CustomRuleInterface
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|string|null $pattern Pattern to match
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|string|null $flags Flags to use
      */
-    public function __construct(JsonLogicRuleInterface|array|string|int|float|bool|null $string = null, JsonLogicRuleInterface|array|string|null $pattern = null, JsonLogicRuleInterface|array|string|null $flags = null)
-    {
+    public function __construct(
+        JsonLogicRuleInterface|array|string|int|float|bool|null $string = null,
+        JsonLogicRuleInterface|array|string|null $pattern = null,
+        JsonLogicRuleInterface|array|string|null $flags = null,
+    ) {
         $this->operator = 'match';
         $this->string = $string;
         $this->pattern = $pattern;

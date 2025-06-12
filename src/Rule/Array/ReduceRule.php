@@ -41,8 +41,11 @@ class ReduceRule extends AbstractJsonLogicRule
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array $reducer Reducer logic
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|mixed|array $initial Initial value
      */
-    public function __construct(JsonLogicRuleInterface|array $array, JsonLogicRuleInterface|array $reducer, mixed $initial)
-    {
+    public function __construct(
+        JsonLogicRuleInterface|array $array,
+        JsonLogicRuleInterface|array $reducer,
+        mixed $initial,
+    ) {
         $this->operator = 'reduce';
         $this->array = $array;
         $this->reducer = $reducer;

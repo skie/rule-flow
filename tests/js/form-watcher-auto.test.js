@@ -5,14 +5,14 @@ QUnit.module('FormWatcher Auto Tests', function (hooks) {
     hooks.beforeEach(function () {
         const fixture = document.getElementById('qunit-fixture');
         fixture.innerHTML = `
-            <script type="application/json" id="test-rules">
+            < script type = "application/json" id = "test-rules" >
             {
                 "username": {
                     "rules": [
                         {
                             "rule": {"!=": [{"var": "username"}, ""]},
                             "message": "Username is required"
-                        }
+                    }
                     ]
                 },
                 "email": {
@@ -20,27 +20,27 @@ QUnit.module('FormWatcher Auto Tests', function (hooks) {
                         {
                             "rule": {"!=": [{"var": "email"}, ""]},
                             "message": "Email is required"
-                        }
+                    }
                     ]
                 }
         }
-            </script>
+            <  / script >
 
-            <form id="test-form" data-json-logic="#test-rules">
-                <input type="text" name="username" value="">
-                <input type="email" name="email" value="">
-                <input type="password" name="password" value="">
+            < form id = "test-form" data - json - logic = "#test-rules" >
+                < input type = "text" name = "username" value = "" >
+                < input type = "email" name = "email" value = "" >
+                < input type = "password" name = "password" value = "" >
 
-                <!-- Fields with validation-rule attributes -->
-                <input type="text" name="title"
-                       validation-rule='{"type": "json-logic", "rules": [{"rule": {"!=": [{"var": "title"}, ""]}, "message": "Title is required"}]}'>
+                < !--Fields with validation - rule attributes-- >
+                < input type = "text" name = "title"
+                       validation - rule = '{"type": "json-logic", "rules": [{"rule": {"!=": [{"var": "title"}, ""]}, "message": "Title is required"}]}' >
 
-                <!-- Collection fields -->
-                <input type="text" name="collection[0][name]"
-                       validation-rule='{"type": "json-logic", "rules": [{"rule": {"!=": [{"var": "collection.0.name"}, ""]}, "message": "Name is required"}]}'>
-                <input type="email" name="collection[0][email]"
-                       validation-rule='{"type": "json-logic", "rules": [{"rule": {"!=": [{"var": "collection.0.email"}, ""]}, "message": "Email is required"}]}'>
-            </form>
+                < !--Collection fields-- >
+                < input type = "text" name = "collection[0][name]"
+                       validation - rule = '{"type": "json-logic", "rules": [{"rule": {"!=": [{"var": "collection.0.name"}, ""]}, "message": "Name is required"}]}' >
+                < input type = "email" name = "collection[0][email]"
+                       validation - rule = '{"type": "json-logic", "rules": [{"rule": {"!=": [{"var": "collection.0.email"}, ""]}, "message": "Email is required"}]}' >
+            <  / form >
         `;
         testForm = document.getElementById('test-form');
         rulesElement = document.getElementById('test-rules');

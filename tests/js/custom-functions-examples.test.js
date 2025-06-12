@@ -4,11 +4,11 @@
  * Tests all the custom JavaScript function examples from the documentation to ensure they work correctly
  */
 
-QUnit.module('Custom Functions Examples', function(hooks) {
+QUnit.module('Custom Functions Examples', function (hooks) {
     let originalFormWatcherCustomOperations;
     let originalFormWatcherAutoConfig;
 
-    hooks.beforeEach(function() {
+    hooks.beforeEach(function () {
         // Save original state
         originalFormWatcherCustomOperations = window.FormWatcherCustomOperations;
         originalFormWatcherAutoConfig = window.FormWatcherAutoConfig;
@@ -18,7 +18,7 @@ QUnit.module('Custom Functions Examples', function(hooks) {
         window.FormWatcherAutoConfig = {};
     });
 
-    hooks.afterEach(function() {
+    hooks.afterEach(function () {
         // Restore original state
         window.FormWatcherCustomOperations = originalFormWatcherCustomOperations;
         window.FormWatcherAutoConfig = originalFormWatcherAutoConfig;
@@ -28,11 +28,13 @@ QUnit.module('Custom Functions Examples', function(hooks) {
         testForms.forEach(form => form.remove());
     });
 
-    QUnit.test('Age Verification Function - Method 1 (Global Registration)', function(assert) {
+    QUnit.test('Age Verification Function - Method 1 (Global Registration)', function (assert) {
         // Define the age_verification function from documentation example
         window.FormWatcherCustomOperations = {
-            age_verification: function(minAge, birthDate) {
-                if (!birthDate) return false;
+            age_verification: function (minAge, birthDate) {
+                if (!birthDate) {
+                    return false;
+                }
                 const today = new Date();
                 const birth = new Date(birthDate);
                 const age = Math.floor((today - birth) / (365.25 * 24 * 60 * 60 * 1000));
@@ -69,11 +71,13 @@ QUnit.module('Custom Functions Examples', function(hooks) {
         assert.false(result6, 'Null birth date should be invalid');
     });
 
-    QUnit.test('Strong Password Function - Method 1 (Global Registration)', function(assert) {
+    QUnit.test('Strong Password Function - Method 1 (Global Registration)', function (assert) {
         // Define the strong_password function from documentation example
         window.FormWatcherCustomOperations = {
-            strong_password: function(password) {
-                if (!password || password.length < 8) return false;
+            strong_password: function (password) {
+                if (!password || password.length < 8) {
+                    return false;
+                }
                 const hasLower = /[a-z]/.test(password);
                 const hasUpper = /[A-Z]/.test(password);
                 const hasDigit = /[0-9]/.test(password);
@@ -117,18 +121,22 @@ QUnit.module('Custom Functions Examples', function(hooks) {
         assert.false(result8, 'Null password should fail');
     });
 
-    QUnit.test('Credit Card Validation Function - Method 3 (Configuration-based)', function(assert) {
+    QUnit.test('Credit Card Validation Function - Method 3 (Configuration-based)', function (assert) {
         // Define the credit_card function from documentation example
         window.FormWatcherAutoConfig = {
             autoInit: true,
             customOperations: {
-                credit_card: function(cardNumber) {
-                    if (!cardNumber) return false;
+                credit_card: function (cardNumber) {
+                    if (!cardNumber) {
+                        return false;
+                    }
                     // Luhn algorithm implementation
                     const digits = cardNumber.replace(/\D/g, '');
 
                     // Credit cards must be at least 13 digits long
-                    if (digits.length < 13) return false;
+                    if (digits.length < 13) {
+                        return false;
+                    }
 
                     let sum = 0;
                     let isEven = false;
@@ -136,7 +144,9 @@ QUnit.module('Custom Functions Examples', function(hooks) {
                         let digit = parseInt(digits[i]);
                         if (isEven) {
                             digit *= 2;
-                            if (digit > 9) digit -= 9;
+                            if (digit > 9) {
+                                digit -= 9;
+                            }
                         }
                         sum += digit;
                         isEven = !isEven;
@@ -177,12 +187,12 @@ QUnit.module('Custom Functions Examples', function(hooks) {
         assert.false(result7, 'Too short card number should fail');
     });
 
-    QUnit.test('Email Format Function - Common Pattern', function(assert) {
+    QUnit.test('Email Format Function - Common Pattern', function (assert) {
         // Define email validation function from documentation
         const emailPattern = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
 
         window.FormWatcherCustomOperations = {
-            email_format: function(email) {
+            email_format: function (email) {
                 return new RegExp(emailPattern).test(email);
             }
         };
@@ -218,10 +228,10 @@ QUnit.module('Custom Functions Examples', function(hooks) {
         assert.false(result7, 'Empty email should fail');
     });
 
-    QUnit.test('Phone International Function - Common Pattern', function(assert) {
+    QUnit.test('Phone International Function - Common Pattern', function (assert) {
         // Define phone validation function from documentation
         window.FormWatcherCustomOperations = {
-            phone_international: function(phone) {
+            phone_international: function (phone) {
                 return /^\+[1-9]\d{1,14}$/.test(phone);
             }
         };
@@ -257,10 +267,10 @@ QUnit.module('Custom Functions Examples', function(hooks) {
         assert.false(result7, 'Empty phone should fail');
     });
 
-    QUnit.test('Runtime Registration - Method 2', function(assert) {
+    QUnit.test('Runtime Registration - Method 2', function (assert) {
         // Mock FormWatcherAuto for testing
         window.FormWatcherAuto = {
-            registerCustomFunction: function(name, func) {
+            registerCustomFunction: function (name, func) {
                 if (!this.customFunctions) {
                     this.customFunctions = {};
                 }
@@ -270,8 +280,10 @@ QUnit.module('Custom Functions Examples', function(hooks) {
 
         // Test the runtime registration example from documentation
         if (window.FormWatcherAuto) {
-            FormWatcherAuto.registerCustomFunction('age_verification', function(minAge, birthDate) {
-                if (!birthDate) return false;
+            FormWatcherAuto.registerCustomFunction('age_verification', function (minAge, birthDate) {
+                if (!birthDate) {
+                    return false;
+                }
                 const today = new Date();
                 const birth = new Date(birthDate);
                 const age = Math.floor((today - birth) / (365.25 * 24 * 60 * 60 * 1000));
@@ -292,19 +304,23 @@ QUnit.module('Custom Functions Examples', function(hooks) {
         assert.false(result2, 'Registered age verification function should reject young ages');
     });
 
-    QUnit.test('Complex Validation Scenarios', function(assert) {
+    QUnit.test('Complex Validation Scenarios', function (assert) {
         // Define multiple custom functions for complex validation
         window.FormWatcherCustomOperations = {
-            age_verification: function(minAge, birthDate) {
-                if (!birthDate) return false;
+            age_verification: function (minAge, birthDate) {
+                if (!birthDate) {
+                    return false;
+                }
                 const today = new Date();
                 const birth = new Date(birthDate);
                 const age = Math.floor((today - birth) / (365.25 * 24 * 60 * 60 * 1000));
                 return age >= minAge;
             },
 
-            strong_password: function(password) {
-                if (!password || password.length < 8) return false;
+            strong_password: function (password) {
+                if (!password || password.length < 8) {
+                    return false;
+                }
                 const hasLower = /[a-z]/.test(password);
                 const hasUpper = /[A-Z]/.test(password);
                 const hasDigit = /[0-9]/.test(password);
@@ -312,12 +328,12 @@ QUnit.module('Custom Functions Examples', function(hooks) {
                 return hasLower && hasUpper && hasDigit && hasSpecial;
             },
 
-            email_format: function(email) {
+            email_format: function (email) {
                 const emailPattern = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
                 return new RegExp(emailPattern).test(email);
             },
 
-            username_length: function(username) {
+            username_length: function (username) {
                 return username && username.length >= 3 && username.length <= 20;
             }
         };
@@ -364,19 +380,25 @@ QUnit.module('Custom Functions Examples', function(hooks) {
         assert.false(usernameInvalid, 'Short username should fail');
     });
 
-    QUnit.test('Edge Cases and Error Handling', function(assert) {
+    QUnit.test('Edge Cases and Error Handling', function (assert) {
         // Define functions with comprehensive error handling
         window.FormWatcherCustomOperations = {
-            safe_age_verification: function(minAge, birthDate) {
+            safe_age_verification: function (minAge, birthDate) {
                 try {
-                    if (!birthDate || typeof birthDate !== 'string') return false;
-                    if (!minAge || typeof minAge !== 'number') return false;
+                    if (!birthDate || typeof birthDate !== 'string') {
+                        return false;
+                    }
+                    if (!minAge || typeof minAge !== 'number') {
+                        return false;
+                    }
 
                     const today = new Date();
                     const birth = new Date(birthDate);
 
                     // Check for invalid dates
-                    if (isNaN(birth.getTime()) || isNaN(today.getTime())) return false;
+                    if (isNaN(birth.getTime()) || isNaN(today.getTime())) {
+                        return false;
+                    }
 
                     const age = Math.floor((today - birth) / (365.25 * 24 * 60 * 60 * 1000));
                     return age >= minAge;
@@ -385,9 +407,11 @@ QUnit.module('Custom Functions Examples', function(hooks) {
                 }
             },
 
-            safe_email_format: function(email) {
+            safe_email_format: function (email) {
                 try {
-                    if (!email || typeof email !== 'string') return false;
+                    if (!email || typeof email !== 'string') {
+                        return false;
+                    }
                     const emailPattern = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
                     return new RegExp(emailPattern).test(email);
                 } catch (error) {
@@ -416,19 +440,22 @@ QUnit.module('Custom Functions Examples', function(hooks) {
         assert.false(safeEmail({}), 'Object email should be handled');
     });
 
-    QUnit.test('Performance and Caching Patterns', function(assert) {
+    QUnit.test('Performance and Caching Patterns', function (assert) {
         // Test the performance tip from documentation - cache compiled patterns
         class RegexValidator {
-            constructor() {
+            constructor()
+            {
                 this.emailRegex = new RegExp('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
                 this.phoneRegex = new RegExp('^\\+[1-9]\\d{1,14}$');
             }
 
-            validateEmail(email) {
+            validateEmail(email)
+            {
                 return this.emailRegex.test(email);
             }
 
-            validatePhone(phone) {
+            validatePhone(phone)
+            {
                 return this.phoneRegex.test(phone);
             }
         }
@@ -454,7 +481,7 @@ QUnit.module('Custom Functions Examples', function(hooks) {
         assert.strictEqual(regex1, regex2, 'Regex objects should be cached and reused');
     });
 
-    QUnit.test('Cross-Platform Pattern Compatibility', function(assert) {
+    QUnit.test('Cross-Platform Pattern Compatibility', function (assert) {
         // Test patterns that work consistently across PHP and JavaScript
         const crossPlatformPatterns = {
             email: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',

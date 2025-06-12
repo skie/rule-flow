@@ -41,8 +41,11 @@ class SubstrRule extends AbstractJsonLogicRule
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|int $start Start position
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|int|null $length Length (optional)
      */
-    public function __construct(JsonLogicRuleInterface|array|string|int|float|bool $string, JsonLogicRuleInterface|array|int $start, JsonLogicRuleInterface|array|int|null $length = null)
-    {
+    public function __construct(
+        JsonLogicRuleInterface|array|string|int|float|bool $string,
+        JsonLogicRuleInterface|array|int $start,
+        JsonLogicRuleInterface|array|int|null $length = null,
+    ) {
         $this->operator = 'substr';
         $this->string = $string;
         $this->start = $start;

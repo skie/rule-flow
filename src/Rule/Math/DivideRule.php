@@ -33,8 +33,10 @@ class DivideRule extends AbstractJsonLogicRule
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|scalar $dividend Dividend (numerator)
      * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|scalar $divisor Divisor (denominator)
      */
-    public function __construct(JsonLogicRuleInterface|array|string|int|float|bool $dividend, JsonLogicRuleInterface|array|string|int|float|bool $divisor)
-    {
+    public function __construct(
+        JsonLogicRuleInterface|array|string|int|float|bool $dividend,
+        JsonLogicRuleInterface|array|string|int|float|bool $divisor,
+    ) {
         $this->operator = '/';
         $this->dividend = $dividend;
         $this->divisor = $divisor;

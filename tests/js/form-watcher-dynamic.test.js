@@ -5,14 +5,14 @@ QUnit.module('FormWatcher Dynamic Tests', function (hooks) {
     hooks.beforeEach(function () {
         const fixture = document.getElementById('qunit-fixture');
         fixture.innerHTML = `
-            <script type="application/json" id="dynamic-rules">
+            < script type = "application/json" id = "dynamic-rules" >
             {
                 "title": {
                     "rules": [
                         {
                             "rule": {"!=": [{"var": "title"}, ""]},
                             "message": "Title is required"
-                        }
+                    }
                     ]
                 },
                 "collection.0.name": {
@@ -20,7 +20,7 @@ QUnit.module('FormWatcher Dynamic Tests', function (hooks) {
                         {
                             "rule": {"!=": [{"var": "collection.0.name"}, ""]},
                             "message": "Name is required"
-                        }
+                    }
                     ]
                 },
                 "collection.0.email": {
@@ -28,35 +28,35 @@ QUnit.module('FormWatcher Dynamic Tests', function (hooks) {
                         {
                             "rule": {"!=": [{"var": "collection.0.email"}, ""]},
                             "message": "Email is required"
-                        }
+                    }
                     ]
                 }
         }
-            </script>
+            <  / script >
 
-            <form id="dynamic-form" data-json-logic="#dynamic-rules">
-                <input type="text" name="title" value="">
+            < form id = "dynamic-form" data - json - logic = "#dynamic-rules" >
+                < input type = "text" name = "title" value = "" >
 
-                <!-- Initial collection items -->
-                <div id="collection-container">
-                    <div class="collection-item">
-                        <input type="text" name="collection[0][name]" value="">
-                        <input type="email" name="collection[0][email]" value="">
-                    </div>
-                </div>
+                < !--Initial collection items-- >
+                < div id = "collection-container" >
+                    < div class = "collection-item" >
+                        < input type = "text" name = "collection[0][name]" value = "" >
+                        < input type = "email" name = "collection[0][email]" value = "" >
+                    <  / div >
+                <  / div >
 
-                <!-- Template for new items -->
-                <template id="collection-template">
-                    <div class="collection-item">
-                        <input type="text" name="collection[__ID__][name]"
-                               validation-rule='{"type": "json-logic", "rules": [{"rule": {"!=": [{"var": "collection.__ID__.name"}, ""]}, "message": "Name is required"}]}'>
-                        <input type="email" name="collection[__ID__][email]"
-                               validation-rule='{"type": "json-logic", "rules": [{"rule": {"!=": [{"var": "collection.__ID__.email"}, ""]}, "message": "Email is required"}]}'>
-                    </div>
-                </template>
-            </form>
+                < !--Template for new items-- >
+                < template id = "collection-template" >
+                    < div class = "collection-item" >
+                        < input type = "text" name = "collection[__ID__][name]"
+                               validation - rule = '{"type": "json-logic", "rules": [{"rule": {"!=": [{"var": "collection.__ID__.name"}, ""]}, "message": "Name is required"}]}' >
+                        < input type = "email" name = "collection[__ID__][email]"
+                               validation - rule = '{"type": "json-logic", "rules": [{"rule": {"!=": [{"var": "collection.__ID__.email"}, ""]}, "message": "Email is required"}]}' >
+                    <  / div >
+                <  / template >
+            <  / form >
 
-            <button id="add-item-btn">Add Item</button>
+            < button id = "add-item-btn" > Add Item < / button >
         `;
         testForm = document.getElementById('dynamic-form');
         rulesElement = document.getElementById('dynamic-rules');
@@ -290,8 +290,8 @@ QUnit.module('FormWatcher Dynamic Tests', function (hooks) {
         const secondForm = document.createElement('form');
         secondForm.id = 'second-form';
         secondForm.innerHTML = `
-            <input type="text" name="username"
-                   validation-rule='{"type": "json-logic", "rules": [{"rule": {"!=": [{"var": "username"}, ""]}, "message": "Username required"}]}'>
+            < input type = "text" name = "username"
+                   validation - rule = '{"type": "json-logic", "rules": [{"rule": {"!=": [{"var": "username"}, ""]}, "message": "Username required"}]}' >
         `;
         fixture.appendChild(secondForm);
 
