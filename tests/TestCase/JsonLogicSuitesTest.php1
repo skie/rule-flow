@@ -1,0 +1,566 @@
+<?php
+declare(strict_types=1);
+
+namespace RuleFlow\Test\TestCase;
+
+use Cake\ORM\Entity;
+use Cake\TestSuite\TestCase;
+use RuleFlow\JsonLogicEvaluator;
+use RuleFlow\Test\TestCase\Reporting\TestSummary;
+use DirectoryIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
+use function Cake\Core\env as env;
+
+/**
+ * JsonLogic Test Suites Test Case
+ *
+ * Runs tests from JSON files in the tests/suites directory
+ */
+class JsonLogicSuitesTest extends TestCase
+{
+    /**
+     * @var \RuleFlow\JsonLogicEvaluator
+     */
+    protected $evaluator;
+
+    /**
+     * @var bool
+     */
+    protected $outputJson = false;
+
+    /**
+     * @var string
+     */
+    protected $outputJsonPath = '';
+
+    /**
+     * @var string
+     */
+    protected $tempResultsPath = '';
+
+    /**
+     * @var string
+     */
+    protected $engine = 'cakedc';
+
+    /**
+     * @var array
+     */
+    protected $testCounts = [
+        'passed' => 0,
+        'total' => 0,
+        'failed' => 0,
+    ];
+
+    /**
+     * @var array
+     */
+    protected $processedTests = [];
+
+    /**
+     * @var array
+     */
+    protected $currentTestData = [];
+
+    /**
+     * Flag to indicate test is in progress
+     *
+     * @var bool
+     */
+    protected $testInProgress = false;
+
+    /**
+     * Flag to indicate test failure
+     *
+     * @var bool
+     */
+    protected $testFailed = false;
+
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->evaluator = new JsonLogicEvaluator();
+
+        // Check for JSON output options
+        $this->outputJson = (bool)env('JSON_OUTPUT', false);
+        $this->outputJsonPath = env('JSON_OUTPUT_PATH', ROOT . '/tests/results.json');
+
+        // Set up temp results file path (in the same directory as the output file)
+        $outputDir = dirname($this->outputJsonPath);
+        // Ensure consistent directory separators
+        $this->tempResultsPath = str_replace('\\', '/', $outputDir) . '/temp_results.jsonl';
+
+        if ($this->outputJson) {
+            echo "\nJSON output enabled. Will save results to: " . $this->outputJsonPath . "\n";
+            echo "Temporary results will be stored in: " . $this->tempResultsPath . "\n";
+
+            // Create the output directory if it doesn't exist
+            if (!is_dir($outputDir)) {
+                mkdir($outputDir, 0777, true);
+            }
+        }
+
+        // Reset test state
+        $this->testInProgress = true;
+        $this->testFailed = false;
+    }
+
+    protected function onNotSuccessfulTest(\Throwable $t): never
+    {
+        // Mark the test as failed
+        $this->testFailed = true;
+
+        // Ensure we increment the failed count
+        if (isset($this->testCounts['failed'])) {
+            $this->testCounts['failed']++;
+        }
+
+        // Save the result to the temp file before PHPUnit terminates the test
+        if ($this->outputJson && !empty($this->currentTestData)) {
+            $this->currentTestData['failed'] = true;
+            $this->appendTestResultToTempFile();
+        }
+
+        // Let PHPUnit handle the exception
+        parent::onNotSuccessfulTest($t);
+    }
+
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        // If JSON output is enabled, we save the current test result to the temp file
+        if ($this->outputJson && $this->testInProgress && !empty($this->currentTestData)) {
+            // Mark it as failed if we caught an exception in our try/catch
+            $this->appendTestResultToTempFile();
+        }
+
+        $this->testInProgress = false;
+        unset($this->evaluator);
+        parent::tearDown();
+    }
+
+    /**
+     * Check if the current test has failed
+     *
+     * @return bool
+     */
+    protected function hasFailed(): bool
+    {
+        // Just check our internal flag since we can't reliably access PHPUnit's status
+        return $this->testFailed;
+    }
+
+    /**
+     * Append the current test result to the temporary file
+     *
+     * @return void
+     */
+    protected function appendTestResultToTempFile(): void
+    {
+        // Skip if we don't have current test data
+        if (empty($this->currentTestData)) {
+            return;
+        }
+
+        // Skip test suites loaded test as it's our final processing step
+        $reflection = new \ReflectionClass($this);
+        $currentMethod = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'] ?? '';
+        if ($currentMethod === 'testSuitesAreLoaded') {
+            return;
+        }
+
+        // Write the result to the temp file (one JSON object per line)
+        $tempData = [
+            'suite' => $this->currentTestData['suiteName'] ?? null,
+            'description' => $this->currentTestData['description'] ?? null,
+            'passed' => ($this->currentTestData['passed'] ?? false) && !$this->hasFailed(),
+            'failed' => ($this->currentTestData['failed'] ?? false) || $this->hasFailed(),
+            'rule' => $this->currentTestData['rule'] ?? null,
+            'expected' => $this->currentTestData['expected'] ?? null,
+            'actual' => $this->currentTestData['actual'] ?? null,
+        ];
+
+        // Skip if we don't have required data
+        if (empty($tempData['suite'])) {
+            return;
+        }
+
+        // Append to the temp file
+        $line = json_encode($tempData) . "\n";
+        file_put_contents($this->tempResultsPath, $line, FILE_APPEND);
+    }
+
+    /**
+     * Process all test results from the temporary file and generate the final JSON output
+     *
+     * @return void
+     */
+    protected function processAllTestResults(): void
+    {
+        if (!file_exists($this->tempResultsPath)) {
+            echo "\nNo temporary results file found at: " . $this->tempResultsPath . "\n";
+            return;
+        }
+
+        $testSummary = new TestSummary($this->outputJsonPath);
+        $suiteResults = [];
+
+        // Read the temp file line by line
+        $lines = file($this->tempResultsPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if (empty($lines)) {
+            echo "\nNo test results found in temporary file.\n";
+            return;
+        }
+
+        echo "\nProcessing " . count($lines) . " test results...\n";
+
+        // Process each line (each test result)
+        foreach ($lines as $line) {
+            $testResult = json_decode($line, true);
+            if (!is_array($testResult) || empty($testResult['suite'])) {
+                continue;
+            }
+
+            $suiteName = $testResult['suite'];
+            // Extract just the filename part from the suite path
+            $suiteParts = explode(':', $suiteName);
+            $suiteKey = trim($suiteParts[0]);
+
+            // Initialize suite data if needed
+            if (!isset($suiteResults[$suiteKey])) {
+                $suiteResults[$suiteKey] = [
+                    'passed' => 0,
+                    'total' => 0,
+                    'failed' => 0,
+                ];
+            }
+
+            // Count this test
+            $suiteResults[$suiteKey]['total']++;
+            if ($testResult['passed']) {
+                $suiteResults[$suiteKey]['passed']++;
+            }
+            if ($testResult['failed']) {
+                $suiteResults[$suiteKey]['failed']++;
+            }
+        }
+
+        // Add all suite results to the summary
+        foreach ($suiteResults as $suiteName => $counts) {
+            // Normalize path to use forward slashes
+            $normalizedSuiteName = str_replace('\\', '/', $suiteName);
+            $testSummary->addResult(
+                $normalizedSuiteName,
+                $this->engine,
+                $counts['passed'],
+                $counts['failed'],
+                $counts['total']
+            );
+        }
+
+        // Save the final results
+        $testSummary->saveJson($this->outputJsonPath);
+
+        // Display summary
+        $totalTests = 0;
+        $totalPassed = 0;
+        $totalFailed = 0;
+        foreach ($suiteResults as $counts) {
+            $totalTests += $counts['total'];
+            $totalPassed += $counts['passed'];
+            $totalFailed += $counts['failed'];
+        }
+
+        echo "\n---------------------------------\n";
+        echo "Test results saved to: " . $this->outputJsonPath . "\n";
+        echo "Total suites: " . count($suiteResults) . "\n";
+        echo "Total tests: " . $totalTests . "\n";
+        echo "Passed tests: " . $totalPassed . "\n";
+        echo "Failed tests: " . $totalFailed . "\n";
+        echo "Success rate: " . ($totalTests > 0 ? round($totalPassed / $totalTests * 100, 2) : 0) . "%\n";
+        echo "---------------------------------\n";
+
+        // Clean up the temp file
+        // @unlink($this->tempResultsPath);
+    }
+
+    /**
+     * Data provider for test suites
+     *
+     * @return array<string, array>
+     */
+    public function suitesProvider(): array
+    {
+        $result = [];
+        $suitesPath = dirname(dirname(__DIR__)) . '/tests/suites';
+
+        // Check if the directory exists
+        if (!is_dir($suitesPath)) {
+            $this->markTestSkipped('Suites directory not found: ' . $suitesPath);
+            return [];
+        }
+
+        // Process all JSON files recursively
+        $this->processDirectory($suitesPath, '', $result);
+
+        return $result;
+    }
+
+    /**
+     * Process a directory for JSON test files recursively
+     *
+     * @param string $basePath The base path of the suites directory
+     * @param string $relativePath The relative path within the suites directory
+     * @param array $result Reference to the results array to populate
+     * @return void
+     */
+    protected function processDirectory(string $basePath, string $relativePath, array &$result): void
+    {
+        $currentPath = $basePath;
+        if ($relativePath !== '') {
+            $currentPath .= DIRECTORY_SEPARATOR . $relativePath;
+        }
+
+        $dir = new DirectoryIterator($currentPath);
+
+        foreach ($dir as $fileInfo) {
+            if ($fileInfo->isDot()) {
+                continue;
+            }
+
+            $fileName = $fileInfo->getFilename();
+            $currentRelativePath = $relativePath !== '' ? $relativePath . DIRECTORY_SEPARATOR . $fileName : $fileName;
+
+            if ($fileInfo->isDir()) {
+                // Process subdirectory
+                $this->processDirectory($basePath, $currentRelativePath, $result);
+            } elseif ($fileInfo->isFile() && pathinfo($fileName, PATHINFO_EXTENSION) === 'json') {
+                // Process JSON file
+                $filePath = $fileInfo->getPathname();
+                $suiteContents = file_get_contents($filePath);
+
+                if ($suiteContents === false) {
+                    continue;
+                }
+
+                $suite = json_decode($suiteContents, true);
+
+                if ($suite === null) {
+                    continue;
+                }
+
+                // First item might be a description or a comment
+                if (isset($suite[0]) && is_string($suite[0]) && strpos($suite[0], '#') === 0) {
+                    // Skip the comment/description
+                    array_shift($suite);
+                }
+
+                foreach ($suite as $index => $test) {
+                    if (!isset($test['rule']) || !isset($test['description'])) {
+                        continue;
+                    }
+
+                    $testName = $currentRelativePath . ': ' . ($test['description'] ?? 'Test ' . $index);
+                    $result[$testName] = [$test, $currentRelativePath];
+                }
+            }
+        }
+    }
+
+    /**
+     * Tests for the JsonLogic suite cases
+     *
+     * @dataProvider suitesProvider
+     * @param array $test The test case
+     * @param string $suiteName The name of the test suite
+     * @return void
+     */
+    public function testJsonLogicSuites(array $test, string $suiteName): void
+    {
+        $rule = $test['rule'] ?? null;
+        $expectedResult = $test['result'] ?? null;
+        $data = $test['data'] ?? null;
+        $description = $test['description'] ?? '';
+        $hasError = isset($test['error']);
+
+        // Normalize the suite name
+        $suiteName = str_replace('\\', '/', $suiteName);
+
+        // Extract the suite key from the full suite name
+        $suiteParts = explode(':', $suiteName);
+        $suiteKey = trim($suiteParts[0]);
+
+        // Mark this test as processed
+        $testKey = $suiteKey . '::' . $description;
+        $this->processedTests[$testKey] = true;
+
+        // Debug mode for specific test cases
+        $debug = false;
+        $debugForSuite = 'val.json';
+
+        // Special debug for divide tests
+        $divideDebug = false;
+        if (strpos($suiteName, 'divide') !== false) {
+            $divideDebug = false;
+        }
+
+        if ($debug && strpos($suiteName, $debugForSuite) !== false || $divideDebug) {
+            echo "\n\nTesting: " . $description . "\n";
+            echo "Rule: " . json_encode($rule) . "\n";
+            echo "Data: " . json_encode($data) . "\n";
+            echo "Expected: " . json_encode($expectedResult) . "\n";
+        }
+
+        // Check if the data contains empty fields or numeric keys that can't be used with entities
+        $useEntity = true;
+        if (is_array($data)) {
+            // If data is empty or null, no need to check
+            if (!empty($data)) {
+                $useEntity = $this->canUseEntity($data);
+            }
+        }
+
+        // Convert data to an entity or use as array based on our check
+        // if ($useEntity) {
+        //     $entity = new Entity($data ?: []);
+        // } else {
+        //     $entity = $data ?: [];
+        // }
+        $entity = $data ?: [];
+
+        // Initialize test counts if needed
+        if (!isset($this->testCounts['total'])) {
+            $this->testCounts['total'] = 0;
+            $this->testCounts['passed'] = 0;
+            $this->testCounts['failed'] = 0;
+        }
+
+        $this->testCounts['total']++;
+        $testPassed = false;
+        $actualResult = null;
+
+        try {
+            // If we expect an error, test for it
+            if ($hasError) {
+                try {
+                    $result = $this->evaluator->evaluate($rule, $entity);
+                    $actualResult = $result;
+                    // If we get here, no exception was thrown
+                    $this->fail("Expected an error for test: {$description} in suite {$suiteName}, but got result: " . var_export($result, true));
+                } catch (\Exception $e) {
+                    $this->assertTrue(true, "Exception was thrown as expected for test: {$description}");
+                    $testPassed = true;
+                }
+            } else {
+                // Regular test case
+                $result = $this->evaluator->evaluate($rule, $entity);
+                $actualResult = $result;
+
+                if ($debug && strpos($suiteName, $debugForSuite) !== false || $divideDebug) {
+                    echo "Result: " . json_encode($result) . "\n\n";
+                }
+
+                // For tests involving floating point values
+                if (isset($test['decimal']) && $test['decimal'] === true) {
+                    $testPassed = abs($expectedResult - $result) < 0.0001;
+                    $this->assertEqualsWithDelta($expectedResult, $result, 0.0001, "Test failed: {$description} in suite {$suiteName}");
+                } else {
+                    $testPassed = $expectedResult === $result;
+                    $this->assertEquals($expectedResult, $result, "Test failed: {$description} in suite {$suiteName}");
+                }
+            }
+        } catch (\Exception $e) {
+            // Mark this test as failed
+            $this->testFailed = true;
+            throw $e; // Rethrow to let PHPUnit handle it
+        }
+
+        // Update test counts if test passed
+        if ($testPassed) {
+            $this->testCounts['passed']++;
+        } else {
+            $this->testCounts['failed']++;
+        }
+
+        // Store test info for later access in tearDown
+        $this->currentTestData = [
+            'suiteName' => $suiteName,
+            'description' => $description,
+            'passed' => $testPassed,
+            'failed' => $this->testFailed || !$testPassed,
+            'rule' => $rule,
+            'expected' => $expectedResult,
+            'actual' => $actualResult,
+        ];
+    }
+
+    /**
+     * Check if the data can be used with an entity
+     *
+     * @param array $data The data to check
+     * @return bool Whether the data can be used with an entity
+     */
+    protected function canUseEntity(array $data): bool
+    {
+        // Check for empty field keys or numeric keys
+        foreach ($data as $key => $value) {
+            // Entity can't handle empty field names
+            if ($key === '') {
+                return false;
+            }
+
+            // Entity can't handle numeric keys
+            if (is_int($key)) {
+                return false;
+            }
+
+            // Recursively check nested arrays
+            if (is_array($value)) {
+                if (!$this->canUseEntity($value)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Test that all suites are loaded properly
+     * This test runs last, so we use it to process the final results
+     *
+     * @return void
+     */
+    public function testSuitesAreLoaded(): void
+    {
+        $suites = $this->suitesProvider();
+        $this->assertNotEmpty($suites, 'No test suites were found');
+
+        // Verify that we have the arithmetic/plus.json suite
+        $hasPlusSuite = false;
+        foreach (array_keys($suites) as $suiteName) {
+            if (strpos($suiteName, 'plus.json') !== false) {
+                $hasPlusSuite = true;
+                break;
+            }
+        }
+
+        //$this->assertTrue($hasPlusSuite, 'The arithmetic/plus.json suite was not loaded');
+
+        // Process all test results and generate the final JSON output
+        if ($this->outputJson) {
+            $this->processAllTestResults();
+        }
+    }
+}

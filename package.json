@@ -1,0 +1,29 @@
+{
+  "name": "ruleflow",
+  "version": "1.0.0",
+  "description": "CakePHP RuleFlow Plugin - Dynamic form validation with JSON Logic",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Open tests/js/qunit-test-runner.html in your browser to run QUnit tests\"",
+    "test:server": "echo \"Start a local server and navigate to tests/js/qunit-test-runner.html\""
+  },
+  "keywords": [
+    "cakephp",
+    "validation",
+    "json-logic",
+    "form-watcher",
+    "dynamic-forms"
+  ],
+  "author": "Evgeny",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^30.0.0-beta.3",
+    "jest-environment-jsdom": "^30.0.0-beta.3",
+    "jsdom": "^26.1.0",
+    "json-logic-js": "^2.0.2"
+  }
+}

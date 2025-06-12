@@ -1,0 +1,63 @@
+{
+    "name": "skie/rule-flow",
+    "description": "RuleFlow plugin for CakePHP",
+    "type": "cakephp-plugin",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.3",
+        "cakephp/cakephp": "^5.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.1",
+        "phpstan/phpstan": "^1.10",
+        "cakephp/cakephp-codesniffer": "^5.0",
+        "psalm/plugin-phpunit": "^0.18.4",
+        "vimeo/psalm": "^5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "RuleFlow\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "RuleFlow\\Test\\": "tests/",
+            "Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@stan",
+            "@test"
+        ],
+        "cs-check": "phpcs --standard=vendor/cakephp/cakephp-codesniffer/CakePHP src/ tests/",
+        "cs-fix": "phpcbf --standard=vendor/cakephp/cakephp-codesniffer/CakePHP src/ tests/",
+        "stan": "phpstan analyse",
+        "stan-baseline": "phpstan analyse --generate-baseline",
+        "psalm": "psalm --show-info=false",
+        "psalm-baseline": "psalm --set-baseline=psalm-baseline.xml",
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-html=coverage",
+        "test-coverage-text": "phpunit --coverage-text"
+    },
+    "scripts-descriptions": {
+        "check": "Run all quality assurance checks",
+        "cs-check": "Check code style with CodeSniffer",
+        "cs-fix": "Fix code style with CodeSniffer",
+        "stan": "Run static analysis with PHPStan",
+        "stan-baseline": "Generate PHPStan baseline",
+        "psalm": "Run static analysis with Psalm",
+        "psalm-baseline": "Generate Psalm baseline",
+        "test": "Run unit tests",
+        "test-coverage": "Run tests with HTML coverage report",
+        "test-coverage-text": "Run tests with text coverage report"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

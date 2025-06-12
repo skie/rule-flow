@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regular FormWatcher Auto Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .collection-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .collection-item h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 5px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Regular FormWatcher Auto Example</h1>
+    <p>This example demonstrates form validation with the regular auto loader (no dynamic fields).</p>
+    <p><strong>Note:</strong> This uses the same validation rules as the dynamic example for comparison.</p>
+
+    <!-- JSON Logic Rules - Using dot notation for internal field names -->
+    <script type="application/json" id="json-logic-rules">
+    {
+        "title": {
+            "rules": [
+                {
+                    "rule": {"!=": [{"var": "title"}, ""]},
+                    "message": "Title is required"
+                },
+                {
+                    "rule": {">=": [{"length": {"var": "title"}}, 2]},
+                    "message": "Title must be at least 2 characters"
+                }
+            ]
+        },
+        "collection.0.title": {
+            "rules": [
+                {
+                    "rule": {"!=": [{"var": "collection.0.title"}, ""]},
+                    "message": "Collection title is required"
+                },
+                {
+                    "rule": {">=": [{"length": {"var": "collection.0.title"}}, 2]},
+                    "message": "Collection title must be at least 2 characters"
+                }
+            ]
+        },
+        "collection.0.name": {
+            "rules": [
+                {
+                    "rule": {"!=": [{"var": "collection.0.name"}, ""]},
+                    "message": "Name is required"
+                },
+                {
+                    "rule": {">=": [{"length": {"var": "collection.0.name"}}, 3]},
+                    "message": "Name must be at least 3 characters"
+                }
+            ]
+        },
+        "collection.0.email": {
+            "rules": [
+                {
+                    "rule": {"!=": [{"var": "collection.0.email"}, ""]},
+                    "message": "Email is required"
+                },
+                {
+                    "rule": {"match": [{"var": "collection.0.email"}, "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"]},
+                    "message": "Please enter a valid email address"
+                }
+            ]
+        },
+        "collection.0.age": {
+            "rules": [
+                {
+                    "rule": {"and": [
+                        {"!=": [{"var": "collection.0.age"}, ""]},
+                        {">=": [{"var": "collection.0.age"}, 18]},
+                        {"<=": [{"var": "collection.0.age"}, 120]}
+                    ]},
+                    "message": "Age must be between 18 and 120"
+                }
+            ]
+        }
+    }
+    </script>
+
+    <form id="collection-form" data-json-logic="#json-logic-rules">
+        <h2>Contact Form (Static Fields)</h2>
+
+        <!-- Simple field outside collection -->
+        <div class="form-group">
+            <label for="title">Form Title:</label>
+            <input type="text" id="title" name="title" placeholder="Enter form title..." />
+        </div>
+
+        <div id="collection-container">
+            <!-- Static collection item -->
+            <div class="collection-item">
+                <h4>Contact #1</h4>
+                <div class="form-group">
+                    <label for="collection_0_title">Collection Title:</label>
+                    <input type="text" id="collection_0_title" name="collection[0][title]" placeholder="Enter collection title..." />
+                </div>
+                <div class="form-group">
+                    <label for="collection_0_name">Name:</label>
+                    <input type="text" id="collection_0_name" name="collection[0][name]" />
+                </div>
+                <div class="form-group">
+                    <label for="collection_0_email">Email:</label>
+                    <input type="email" id="collection_0_email" name="collection[0][email]" />
+                </div>
+                <div class="form-group">
+                    <label for="collection_0_age">Age:</label>
+                    <input type="number" id="collection_0_age" name="collection[0][age]" min="18" max="120" />
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button type="submit" class="btn">Submit Form</button>
+            <button type="button" class="btn" onclick="validateForm()">Validate All</button>
+            <button type="button" class="btn" onclick="showFormData()">Show Form Data</button>
+        </div>
+    </form>
+
+    <div id="debug-info">
+        <h3>Debug Information</h3>
+        <div id="debug-output"></div>
+    </div>
+
+    <!-- Include required libraries -->
+    <script src="https://unpkg.com/json-logic-js@2.0.5/logic.js"></script>
+    <!-- Include FormWatcher base library -->
+    <script src="../js/validate/form-watcher.js"></script>
+    <script src="../js/validate/form-watcher-auto.js"></script>
+
+    <script>
+        function validateForm() {
+            if (window.FormWatcherAuto) {
+                const results = window.FormWatcherAuto.validateAll();
+                console.log('Validation results:', results);
+                updateDebugInfo();
+            }
+        }
+
+        function showFormData() {
+            if (window.FormWatcherAuto) {
+                const watcher = window.FormWatcherAuto.getWatcher('collection-form');
+                if (watcher) {
+                    const data = watcher.getData();
+                    console.log('Form data:', data);
+                    alert('Check console for form data structure');
+                }
+            }
+        }
+
+        function updateDebugInfo() {
+            if (window.FormWatcherAuto) {
+                const watcher = window.FormWatcherAuto.getWatcher('collection-form');
+                const debugOutput = document.getElementById('debug-output');
+
+                if (watcher) {
+                    const formData = watcher.getData();
+                    const errors = watcher.getErrors();
+
+                    debugOutput.innerHTML = `
+                        <h4>Form Data Structure:</h4>
+                        <pre>${JSON.stringify(formData, null, 2)}</pre>
+                        <h4>Validation Errors:</h4>
+                        <pre>${JSON.stringify(errors, null, 2)}</pre>
+                        <h4>Available Methods:</h4>
+                        <pre>FormWatcherAuto available: ${!!window.FormWatcherAuto}
+Watcher found: ${!!watcher}
+Form ID: collection-form</pre>
+                    `;
+                } else {
+                    debugOutput.innerHTML = '<p>No FormWatcher found for this form</p>';
+                }
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing FormWatcher Auto...');
+
+            // Wait a bit for all scripts to load
+            setTimeout(() => {
+                if (window.FormWatcherAuto) {
+                    console.log('FormWatcher Auto available');
+
+                    // Get the watcher and check its configuration
+                    const watcher = window.FormWatcherAuto.getWatcher('collection-form');
+                    if (watcher) {
+                        console.log('Watcher configuration:', {
+                            debounceTime: watcher.options?.debounceTime,
+                            validateOnChange: watcher.options?.validateOnChange,
+                            validateOnInit: watcher.options?.validateOnInit
+                        });
+                        console.log('Watcher has validators for fields:', Object.keys(watcher.validators || {}));
+                    }
+
+                    updateDebugInfo();
+                } else {
+                    console.error('FormWatcher Auto not available');
+                }
+            }, 100);
+        });
+
+        // Handle form submission
+        document.getElementById('collection-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (window.FormWatcherAuto) {
+                const results = window.FormWatcherAuto.validateAll();
+                console.log('Form submission validation:', results);
+
+                const allValid = Object.values(results).every(result => result === true);
+                if (allValid) {
+                    const watcher = window.FormWatcherAuto.getWatcher('collection-form');
+                    const formData = watcher ? watcher.getData() : {};
+                    console.log('Submitting form data:', formData);
+                    alert('Form is valid! Check console for submitted data.');
+                } else {
+                    alert('Please fix validation errors before submitting.');
+                }
+            }
+        });
+
+        // Add some debug logging for field changes
+        document.addEventListener('input', function(e) {
+            if (e.target.form && e.target.form.id === 'collection-form') {
+                console.log(`Input event on field: ${e.target.name}, value: ${e.target.value}`);
+
+                // Check if FormWatcher is handling this
+                if (window.FormWatcherAuto) {
+                    const watcher = window.FormWatcherAuto.getWatcher('collection-form');
+                    if (watcher) {
+                        console.log('Watcher exists, checking validation...');
+                        // Force validation for this field
+                        setTimeout(() => {
+                            const errors = watcher.getErrors();
+                            console.log('Current errors after input:', errors);
+                        }, 50);
+                    } else {
+                        console.log('No watcher found for collection-form');
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target.form && e.target.form.id === 'collection-form') {
+                console.log(`Change event on field: ${e.target.name}, value: ${e.target.value}`);
+            }
+        });
+    </script>
+</body>
+</html>

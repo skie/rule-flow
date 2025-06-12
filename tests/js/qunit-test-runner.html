@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RuleFlow JavaScript Tests</title>
+
+    <!-- QUnit CSS -->
+    <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.19.4.css">
+
+    <!-- QUnit JavaScript -->
+    <script src="https://code.jquery.com/qunit/qunit-2.19.4.js"></script>
+
+    <!-- JSON Logic dependency - using non-minified version -->
+    <script src="https://unpkg.com/json-logic-js@2.0.2/logic.js"></script>
+
+    <!-- Source files to test -->
+    <script src="../../webroot/js/validate/form-watcher.js"></script>
+    <script src="../../webroot/js/validate/form-watcher-auto.js"></script>
+    <script src="../../webroot/js/validate/form-watcher-dynamic.js"></script>
+
+    <!-- Test files -->
+    <script src="form-watcher.test.js"></script>
+    <script src="form-watcher-auto.test.js"></script>
+    <script src="form-watcher-dynamic.test.js"></script>
+    <script src="custom-functions-examples.test.js"></script>
+</head>
+<body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture">
+        <!-- Test fixtures will be placed here -->
+    </div>
+
+    <script>
+        // Ensure JSON Logic is available globally
+        console.log('JSON Logic loaded:', typeof jsonLogic);
+        if (typeof jsonLogic === 'undefined') {
+            console.error('JSON Logic failed to load!');
+        }
+    </script>
+</body>
+</html>

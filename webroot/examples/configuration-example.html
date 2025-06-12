@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FormWatcher Configuration Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 5px;
+        }
+        .config-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .config-section h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>FormWatcher Configuration Example</h1>
+
+    <div class="config-section">
+        <h3>Configuration Options</h3>
+        <p>Try different configurations to see how validation summary behavior changes:</p>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" id="showSummary"> Show validation summary at top of form
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label for="autoRemoveTimeout">Auto-remove timeout (seconds, 0 = disabled):</label>
+            <input type="number" id="autoRemoveTimeout" value="0" min="0" max="30">
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" id="focusFirst" checked> Focus first error field
+            </label>
+        </div>
+
+        <button type="button" class="btn" onclick="updateConfiguration()">Apply Configuration</button>
+    </div>
+
+    <!-- JSON Logic Rules -->
+    <script type="application/json" id="json-logic-rules">
+    {
+        "name": {
+            "rules": [
+                {
+                    "rule": {"!=": [{"var": "name"}, ""]},
+                    "message": "Name is required"
+                },
+                {
+                    "rule": {">=": [{"length": {"var": "name"}}, 3]},
+                    "message": "Name must be at least 3 characters"
+                }
+            ]
+        },
+        "email": {
+            "rules": [
+                {
+                    "rule": {"!=": [{"var": "email"}, ""]},
+                    "message": "Email is required"
+                },
+                {
+                    "rule": {"match": [{"var": "email"}, "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"]},
+                    "message": "Please enter a valid email address"
+                }
+            ]
+        }
+    }
+    </script>
+
+    <form id="test-form" data-json-logic="#json-logic-rules">
+        <h2>Test Form</h2>
+
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" />
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" />
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn">Submit Form</button>
+        </div>
+    </form>
+
+    <div id="info">
+        <h3>Current Configuration:</h3>
+        <div id="current-config"></div>
+    </div>
+
+    <!-- Include required libraries -->
+    <script src="https://unpkg.com/json-logic-js@2.0.5/logic.js"></script>
+    <script src="../js/validate/form-watcher.js"></script>
+    <script src="../js/validate/form-watcher-auto.js"></script>
+
+    <script>
+        function updateConfiguration() {
+            const showSummary = document.getElementById('showSummary').checked;
+            const autoRemoveTimeout = parseInt(document.getElementById('autoRemoveTimeout').value) * 1000; // Convert to milliseconds
+            const focusFirst = document.getElementById('focusFirst').checked;
+
+            // Apply configuration
+            FormWatcherAuto.configure({
+                showValidationSummary: showSummary,
+                summaryAutoRemoveTimeout: autoRemoveTimeout,
+                focusFirstErrorField: focusFirst
+            });
+
+            updateConfigDisplay();
+        }
+
+        function updateConfigDisplay() {
+            const options = FormWatcherAuto.getOptions();
+            document.getElementById('current-config').innerHTML = `
+                <pre>${JSON.stringify(options, null, 2)}</pre>
+            `;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, FormWatcher Auto should be initialized');
+            updateConfigDisplay();
+        });
+
+        // Handle form submission
+        document.getElementById('test-form').addEventListener('submit', function(e) {
+            console.log('Form submitted with validation result');
+        });
+    </script>
+</body>
+</html>

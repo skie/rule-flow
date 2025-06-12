@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Collection Form Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .collection-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .collection-item h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 5px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dynamic Collection Form Example</h1>
+    <p>This example demonstrates form validation with dynamically added collection fields using patterns.</p>
+    <p><strong>Note:</strong> HTML uses collection[N][field] notation, but validation rules use collection.N.field internally.</p>
+
+    <!-- No JSON Logic Rules needed - using attribute-based validation -->
+
+    <form id="collection-form">
+        <h2>Dynamic Collection Form</h2>
+
+        <!-- Simple field outside collection -->
+        <div class="form-group">
+            <label for="title">Form Title:</label>
+            <input type="text" id="title" name="title" placeholder="Enter form title..."
+                   validation-rule='{"type":"json-logic","rules":[
+                       {"rule":{"!=": [{"var": "title"}, ""]},"message":"Title is required"},
+                       {"rule":{">=": [{"length": {"var": "title"}}, 2]},"message":"Title must be at least 2 characters"}
+                   ]}' />
+        </div>
+
+        <div id="collection-container">
+            <!-- Initial collection item -->
+            <div class="collection-item">
+                <h4>Contact #1</h4>
+                <div class="form-group">
+                    <label for="collection_0_name">Name:</label>
+                    <input type="text" id="collection_0_name" name="collection[0][name]"
+                           validation-rule='{"type":"json-logic","rules":[
+                               {"rule":{"!=": [{"var": "collection.0.name"}, ""]},"message":"Name is required"},
+                               {"rule":{">=": [{"length": {"var": "collection.0.name"}}, 3]},"message":"Name must be at least 3 characters"}
+                           ]}' />
+                </div>
+                <div class="form-group">
+                    <label for="collection_0_email">Email:</label>
+                    <input type="email" id="collection_0_email" name="collection[0][email]"
+                           validation-rule='{"type":"json-logic","rules":[
+                               {"rule":{"!=": [{"var": "collection.0.email"}, ""]},"message":"Email is required"},
+                               {"rule":{"match": [{"var": "collection.0.email"}, "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"]},"message":"Please enter a valid email address"}
+                           ]}' />
+                </div>
+                <div class="form-group">
+                    <label for="collection_0_age">Age:</label>
+                    <input type="number" id="collection_0_age" name="collection[0][age]" min="18" max="120"
+                           validation-rule='{"type":"json-logic","rules":[
+                               {"rule":{"and": [
+                                   {"!=": [{"var": "collection.0.age"}, ""]},
+                                   {">=": [{"var": "collection.0.age"}, 18]},
+                                   {"<=": [{"var": "collection.0.age"}, 120]}
+                               ]},"message":"Age must be between 18 and 120"}
+                           ]}' />
+                </div>
+                <button type="button" class="btn btn-danger" onclick="removeCollectionItem(this)">Remove</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button type="button" class="btn" onclick="addCollectionItem()">Add Contact</button>
+            <button type="submit" class="btn">Submit Form</button>
+            <button type="button" class="btn" onclick="validateForm()">Validate All</button>
+            <button type="button" class="btn" onclick="showFormData()">Show Form Data</button>
+        </div>
+    </form>
+
+    <!-- Template for new collection items -->
+    <template id="collection-item-template">
+        <div class="collection-item">
+            <h4>Contact #__DISPLAY_ID__</h4>
+            <div class="form-group">
+                <label for="collection___ID___name">Name:</label>
+                <input type="text" id="collection___ID___name" name="collection[__ID__][name]"
+                       validation-rule='{"type":"json-logic","rules":[
+                           {"rule":{"!=": [{"var": "collection.__ID__.name"}, ""]},"message":"Name is required"},
+                           {"rule":{">=": [{"length": {"var": "collection.__ID__.name"}}, 3]},"message":"Name must be at least 3 characters"}
+                       ]}' />
+            </div>
+            <div class="form-group">
+                <label for="collection___ID___email">Email:</label>
+                <input type="email" id="collection___ID___email" name="collection[__ID__][email]"
+                       validation-rule='{"type":"json-logic","rules":[
+                           {"rule":{"!=": [{"var": "collection.__ID__.email"}, ""]},"message":"Email is required"},
+                           {"rule":{"match": [{"var": "collection.__ID__.email"}, "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"]},"message":"Please enter a valid email address"}
+                       ]}' />
+            </div>
+            <div class="form-group">
+                <label for="collection___ID___age">Age:</label>
+                <input type="number" id="collection___ID___age" name="collection[__ID__][age]" min="18" max="120"
+                       validation-rule='{"type":"json-logic","rules":[
+                           {"rule":{"and": [
+                               {"!=": [{"var": "collection.__ID__.age"}, ""]},
+                               {">=": [{"var": "collection.__ID__.age"}, 18]},
+                               {"<=": [{"var": "collection.__ID__.age"}, 120]}
+                           ]},"message":"Age must be between 18 and 120"}
+                       ]}' />
+            </div>
+            <button type="button" class="btn btn-danger" onclick="removeCollectionItem(this)">Remove</button>
+        </div>
+    </template>
+
+    <div id="debug-info">
+        <h3>Debug Information</h3>
+        <div id="debug-output"></div>
+    </div>
+
+    <!-- Include required libraries -->
+    <script src="https://unpkg.com/json-logic-js@2.0.5/logic.js"></script>
+    <!-- Include FormWatcher base library -->
+    <script src="../js/validate/form-watcher.js"></script>
+    <script src="../js/validate/form-watcher-dynamic.js"></script>
+
+    <script>
+        let collectionIndex = 0;
+
+        function addCollectionItem() {
+            collectionIndex++;
+            const container = document.getElementById('collection-container');
+
+            // Get the template
+            const template = document.getElementById('collection-item-template');
+            const templateContent = template.content.cloneNode(true);
+
+            // Replace placeholders in the cloned template
+            const itemDiv = templateContent.querySelector('.collection-item');
+            itemDiv.setAttribute('data-index', collectionIndex);
+
+            // Replace placeholders in HTML
+            let itemHTML = itemDiv.outerHTML;
+            itemHTML = itemHTML.replace(/__ID__/g, collectionIndex);
+            itemHTML = itemHTML.replace(/__DISPLAY_ID__/g, collectionIndex + 1);
+
+            // Create new element from updated HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = itemHTML;
+            const newItem = tempDiv.firstChild;
+
+            container.appendChild(newItem);
+            updateDebugInfo();
+        }
+
+        function removeCollectionItem(buttonElement) {
+            const item = buttonElement.closest('.collection-item');
+            if (item) {
+                item.remove();
+                updateDebugInfo();
+            }
+        }
+
+        function validateForm() {
+            if (window.FormWatcherDynamic) {
+                const results = window.FormWatcherDynamic.validateAll();
+                console.log('Validation results:', results);
+                updateDebugInfo();
+            }
+        }
+
+        function showFormData() {
+            if (window.FormWatcherDynamic) {
+                const watcher = window.FormWatcherDynamic.getWatcher('collection-form');
+                if (watcher) {
+                    const data = watcher.getData();
+                    console.log('Form data:', data);
+                    alert('Check console for form data structure');
+                }
+            }
+        }
+
+        function updateDebugInfo() {
+            if (window.FormWatcherDynamic) {
+                const watcher = window.FormWatcherDynamic.getWatcher('collection-form');
+                const debugOutput = document.getElementById('debug-output');
+
+                if (watcher) {
+                    const formData = watcher.getData();
+                    const errors = watcher.getErrors();
+                    const enhancement = window.FormWatcherDynamic.enhancer.getEnhancement('collection-form');
+
+                    debugOutput.innerHTML = `
+                        <h4>Form Data Structure:</h4>
+                        <pre>${JSON.stringify(formData, null, 2)}</pre>
+                        <h4>Validation Errors:</h4>
+                        <pre>${JSON.stringify(errors, null, 2)}</pre>
+                        <h4>Base Patterns:</h4>
+                        <pre>${enhancement ? JSON.stringify(Array.from(enhancement.validationManager.getBasePatterns().keys()), null, 2) : 'No enhancement found'}</pre>
+                    `;
+                } else {
+                    debugOutput.innerHTML = '<p>No FormWatcher found for this form</p>';
+                }
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing Dynamic FormWatcher...');
+
+            // Wait a bit for all scripts to load
+            setTimeout(() => {
+                if (window.FormWatcherDynamic) {
+                    console.log('FormWatcher Dynamic available');
+
+                    // Get the watcher and check its configuration
+                    const watcher = window.FormWatcherDynamic.getWatcher('collection-form');
+                    if (watcher) {
+                        console.log('Dynamic watcher configuration:', {
+                            debounceTime: watcher.options?.debounceTime,
+                            validateOnChange: watcher.options?.validateOnChange,
+                            validateOnInit: watcher.options?.validateOnInit
+                        });
+                        console.log('Dynamic watcher has validators for fields:', Object.keys(watcher.validators || {}));
+                    }
+
+                    updateDebugInfo();
+                } else {
+                    console.error('FormWatcher Dynamic not available');
+                }
+            }, 100);
+        });
+
+        // Add debug logging for field changes
+        document.addEventListener('input', function(e) {
+            if (e.target.form && e.target.form.id === 'collection-form') {
+                console.log(`Input event on field: ${e.target.name}, value: ${e.target.value}`);
+
+                // Check if FormWatcher Dynamic is handling this
+                if (window.FormWatcherDynamic) {
+                    const watcher = window.FormWatcherDynamic.getWatcher('collection-form');
+                    if (watcher) {
+                        console.log('Dynamic watcher exists, checking validation...');
+                        // Force validation check
+                        setTimeout(() => {
+                            const errors = watcher.getErrors();
+                            console.log('Current errors after input:', errors);
+                        }, 50);
+                    } else {
+                        console.log('No dynamic watcher found for collection-form');
+                    }
+                }
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('collection-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (window.FormWatcherDynamic) {
+                const results = window.FormWatcherDynamic.validateAll();
+                console.log('Form submission validation:', results);
+
+                const allValid = Object.values(results).every(result => result === true);
+                if (allValid) {
+                    const watcher = window.FormWatcherDynamic.getWatcher('collection-form');
+                    const formData = watcher ? watcher.getData() : {};
+                    console.log('Submitting form data:', formData);
+                    alert('Form is valid! Check console for submitted data.');
+                } else {
+                    alert('Please fix validation errors before submitting.');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
