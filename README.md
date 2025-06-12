@@ -2,9 +2,8 @@
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/skie/rule-flow.svg)](https://packagist.org/packages/skie/rule-flow)
 [![Total Downloads](https://img.shields.io/packagist/dt/skie/rule-flow.svg)](https://packagist.org/packages/skie/rule-flow)
-[![License](https://img.shields.io/packagist/l/skie/rule-flow.svg)](https://packagist.org/packages/skie/rule-flow)
-[![PHP Version Require](https://img.shields.io/packagist/php-v/skie/rule-flow.svg)](https://packagist.org/packages/skie/rule-flow)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/skie/rule-flow/ci.yml?branch=main)](https://github.com/skie/rule-flow/actions)
+[![License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.txt)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/skie/rule-flow/ci.yml?branch=master)](https://github.com/skie/rule-flow/actions)
 
 A CakePHP plugin that seamlessly transforms server-side validation rules into client-side JSON Logic validation, providing automatic form validation without requiring separate client-side validation code.
 
