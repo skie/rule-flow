@@ -1,12 +1,12 @@
 parameters:
     level: 5
+    treatPhpDocTypesAsCertain: false
     paths:
         - src
         - tests
     bootstrapFiles:
         - tests/bootstrap.php
     excludePaths:
-        - tests/Fixture
         - src/Controller/AppController.php
     ignoreErrors:
         -

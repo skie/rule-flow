@@ -35,12 +35,10 @@ class MatchRuleTest extends TestCase
 
         // Clear operatorMap
         $operatorMapProperty = $reflection->getProperty('operatorMap');
-        $operatorMapProperty->setAccessible(true);
         $operatorMapProperty->setValue($registry, []);
 
         // Clear ruleInstances
         $ruleInstancesProperty = $reflection->getProperty('ruleInstances');
-        $ruleInstancesProperty->setAccessible(true);
         $ruleInstancesProperty->setValue($registry, []);
     }
 

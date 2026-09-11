@@ -36,7 +36,6 @@ class JsonLogicEngineTest extends TestCase
      */
     public function tearDown(): void
     {
-        unset($this->engine);
         parent::tearDown();
     }
 

@@ -5,11 +5,11 @@
     "license": "MIT",
     "require": {
         "php": ">=8.3",
-        "cakephp/cakephp": "^5.1"
+        "cakephp/cakephp": "^5.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.5",
-        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^10.5 | ^11.0 | ^12.0",
+        "phpstan/phpstan": "^2.2",
         "cakephp/cakephp-codesniffer": "^5.0"
     },
     "autoload": {
@@ -29,8 +29,8 @@
             "@stan",
             "@test"
         ],
-        "cs-check": "phpcs --standard=vendor/cakephp/cakephp-codesniffer/CakePHP src/ tests/",
-        "cs-fix": "phpcbf --standard=vendor/cakephp/cakephp-codesniffer/CakePHP src/ tests/",
+        "cs-check": "phpcs -p --standard=phpcs.xml src/ tests/",
+        "cs-fix": "phpcbf --standard=phpcs.xml src/ tests/",
         "stan": "phpstan analyse",
         "stan-baseline": "phpstan analyse --generate-baseline",
         "test": "phpunit",

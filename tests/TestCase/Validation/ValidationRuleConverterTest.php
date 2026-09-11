@@ -46,7 +46,6 @@ class ValidationRuleConverterTest extends TestCase
      */
     protected function tearDown(): void
     {
-        unset($this->converter);
         parent::tearDown();
     }
 
@@ -65,7 +64,6 @@ class ValidationRuleConverterTest extends TestCase
 
         $result = $this->converter->convertValidator($validator);
 
-        $this->assertIsArray($result);
         $this->assertCount(3, $result);
         $this->assertArrayHasKey('status', $result);
         $this->assertArrayHasKey('age', $result);
@@ -99,7 +97,6 @@ class ValidationRuleConverterTest extends TestCase
 
         $result = $this->converter->convertValidator($validator);
 
-        $this->assertIsArray($result);
         $this->assertCount(1, $result);
         $this->assertArrayHasKey('age', $result);
 
@@ -685,7 +682,6 @@ class ValidationRuleConverterTest extends TestCase
     {
         $supportedRules = $this->converter->getSupportedRules();
 
-        $this->assertIsArray($supportedRules);
         $this->assertContains('equals', $supportedRules);
         $this->assertContains('greaterThan', $supportedRules);
         $this->assertContains('lessThan', $supportedRules);

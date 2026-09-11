@@ -35,7 +35,6 @@ class JsonLogicEvaluatorTest extends TestCase
      */
     public function tearDown(): void
     {
-        unset($this->evaluator);
         parent::tearDown();
     }
 

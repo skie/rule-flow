@@ -16,14 +16,14 @@ class MergeRule extends AbstractJsonLogicRule
     /**
      * The arrays to merge
      *
-     * @var array<\RuleFlow\Rule\JsonLogicRuleInterface|array>
+     * @var array<\RuleFlow\Rule\JsonLogicRuleInterface|array|scalar>
      */
     protected array $arrays = [];
 
     /**
      * Constructor
      *
-     * @param array<\RuleFlow\Rule\JsonLogicRuleInterface|array> $arrays Arrays to merge
+     * @param array<\RuleFlow\Rule\JsonLogicRuleInterface|array|scalar> $arrays Arrays to merge
      */
     public function __construct(array $arrays)
     {
@@ -34,7 +34,7 @@ class MergeRule extends AbstractJsonLogicRule
     /**
      * Get the arrays being merged
      *
-     * @return array<\RuleFlow\Rule\JsonLogicRuleInterface|array> Arrays
+     * @return array<\RuleFlow\Rule\JsonLogicRuleInterface|array|scalar> Arrays
      */
     public function getArrays(): array
     {
@@ -44,7 +44,7 @@ class MergeRule extends AbstractJsonLogicRule
     /**
      * Set the arrays to merge
      *
-     * @param array<\RuleFlow\Rule\JsonLogicRuleInterface|array> $arrays Arrays to merge
+     * @param array<\RuleFlow\Rule\JsonLogicRuleInterface|array|scalar> $arrays Arrays to merge
      * @return $this
      */
     public function setArrays(array $arrays)
@@ -57,10 +57,10 @@ class MergeRule extends AbstractJsonLogicRule
     /**
      * Add an array to merge
      *
-     * @param \RuleFlow\Rule\JsonLogicRuleInterface|array $array Array to add
+     * @param \RuleFlow\Rule\JsonLogicRuleInterface|array|scalar $array Array to add
      * @return $this
      */
-    public function addArray(JsonLogicRuleInterface|array $array)
+    public function addArray(JsonLogicRuleInterface|array|string|int|float|bool $array)
     {
         $this->arrays[] = $array;
 

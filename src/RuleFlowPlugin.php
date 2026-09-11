@@ -13,7 +13,7 @@ use Cake\Routing\RouteBuilder;
 /**
  * Plugin for RuleFlow
  */
-class Plugin extends BasePlugin
+class RuleFlowPlugin extends BasePlugin
 {
     /**
      * Load all the plugin configuration and bootstrap logic.

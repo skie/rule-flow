@@ -32,11 +32,9 @@ class LengthRuleTest extends TestCase
         $reflection = new ReflectionClass($registry);
 
         $operatorMapProperty = $reflection->getProperty('operatorMap');
-        $operatorMapProperty->setAccessible(true);
         $operatorMapProperty->setValue($registry, []);
 
         $ruleInstancesProperty = $reflection->getProperty('ruleInstances');
-        $ruleInstancesProperty->setAccessible(true);
         $ruleInstancesProperty->setValue($registry, []);
     }
 

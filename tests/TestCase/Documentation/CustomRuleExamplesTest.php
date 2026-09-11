@@ -39,12 +39,10 @@ class CustomRuleExamplesTest extends TestCase
 
         // Clear operatorMap
         $operatorMapProperty = $reflection->getProperty('operatorMap');
-        $operatorMapProperty->setAccessible(true);
         $operatorMapProperty->setValue($registry, []);
 
         // Clear ruleInstances
         $ruleInstancesProperty = $reflection->getProperty('ruleInstances');
-        $ruleInstancesProperty->setAccessible(true);
         $ruleInstancesProperty->setValue($registry, []);
     }
 
@@ -139,10 +137,11 @@ class CustomRuleExamplesTest extends TestCase
 
         CustomRuleRegistry::getInstance()->register(get_class($ageRule21));
 
-        $rule = ['age_verification_21' => '2005-05-15'];
-        $data = ['birth_date' => '2005-05-15'];
+        $under21 = (new DateTime())->sub(new DateInterval('P20Y'))->format('Y-m-d');
+        $rule = ['age_verification_21' => $under21];
+        $data = ['birth_date' => $under21];
         $result = $this->evaluator->evaluate($rule, $data);
-        $this->assertFalse($result, 'Person born in 2005 should be under 21');
+        $this->assertFalse($result, 'Person aged 20 should be under 21');
     }
 
     /**

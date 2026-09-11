@@ -386,10 +386,6 @@ class JsonLogicEvaluator implements RuleEvaluatorInterface
      */
     protected function applyAndOperator(array $values, mixed $data): mixed
     {
-        if (!is_array($values)) {
-            return $this->resolveValue($values, $data);
-        }
-
         if (empty($values)) {
             return false;
         }
@@ -416,10 +412,6 @@ class JsonLogicEvaluator implements RuleEvaluatorInterface
      */
     protected function applyOrOperator(array $values, mixed $data): mixed
     {
-        if (!is_array($values)) {
-            return $this->resolveValue($values, $data);
-        }
-
         if (empty($values)) {
             return false;
         }
@@ -908,11 +900,11 @@ class JsonLogicEvaluator implements RuleEvaluatorInterface
     /**
      * Apply multiply operator
      *
-     * @param array $values Values to multiply
+     * @param mixed $values Values to multiply
      * @param array $data Data context
      * @return mixed Result
      */
-    protected function applyMultiplyOperator(array $values, array $data): mixed
+    protected function applyMultiplyOperator(mixed $values, array $data): mixed
     {
         if (!is_array($values)) {
             $result = $this->resolveValue($values, $data);
@@ -1021,11 +1013,11 @@ class JsonLogicEvaluator implements RuleEvaluatorInterface
     /**
      * Apply modulo operator
      *
-     * @param array $values Values for modulo [dividend, divisor]
+     * @param mixed $values Values for modulo [dividend, divisor]
      * @param array $data Data context
      * @return mixed Result
      */
-    protected function applyModuloOperator(array $values, array $data): mixed
+    protected function applyModuloOperator(mixed $values, array $data): mixed
     {
         if (!is_array($values)) {
             return null;
@@ -1060,11 +1052,11 @@ class JsonLogicEvaluator implements RuleEvaluatorInterface
     /**
      * Apply max operator
      *
-     * @param array $values Values to find max from
+     * @param mixed $values Values to find max from
      * @param array $data Data context
      * @return mixed Result
      */
-    protected function applyMaxOperator(array $values, array $data): mixed
+    protected function applyMaxOperator(mixed $values, array $data): mixed
     {
         if (!is_array($values)) {
             $result = $this->resolveValue($values, $data);
@@ -1115,11 +1107,11 @@ class JsonLogicEvaluator implements RuleEvaluatorInterface
     /**
      * Apply min operator
      *
-     * @param array $values Values to find min from
+     * @param mixed $values Values to find min from
      * @param array $data Data context
      * @return mixed Result
      */
-    protected function applyMinOperator(array $values, array $data): mixed
+    protected function applyMinOperator(mixed $values, array $data): mixed
     {
         if (!is_array($values)) {
             $result = $this->resolveValue($values, $data);
@@ -1304,7 +1296,7 @@ class JsonLogicEvaluator implements RuleEvaluatorInterface
             }
         }
 
-        return array_values($result);
+        return $result;
     }
 
     /**
@@ -1327,7 +1319,7 @@ class JsonLogicEvaluator implements RuleEvaluatorInterface
             throw new InvalidArgumentException('Invalid Arguments');
         }
 
-        if ($values[0] !== null && is_array($values[0]) && isset($values[0]['var'])) {
+        if (is_array($values[0]) && isset($values[0]['var'])) {
             $unfound = new stdClass();
             $testValue = $this->getVariableValue($values[0]['var'], $data, $unfound);
             if ($testValue === $unfound) {
@@ -2016,7 +2008,7 @@ class JsonLogicEvaluator implements RuleEvaluatorInterface
             return null;
         }
 
-        if (is_array($value) && count($value) === 1) {
+        if (count($value) === 1) {
             if (!isset($value[0])) {
                 return null;
             }

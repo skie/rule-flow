@@ -85,10 +85,32 @@ class MatchRule extends AbstractJsonLogicRule implements CustomRuleInterface
             $patternValue = rtrim($patternValue, '/') . '/' . $flagsValue;
         }
 
+        if (!$this->isValidPattern($patternValue)) {
+            return false;
+        }
+
         try {
             return preg_match($patternValue, $stringValue) === 1;
         } catch (Throwable $e) {
             return false;
+        }
+    }
+
+    /**
+     * Check whether a regex pattern compiles.
+     *
+     * @param string $pattern Pattern including delimiters
+     * @return bool True when the pattern compiles
+     */
+    protected function isValidPattern(string $pattern): bool
+    {
+        set_error_handler(static function (): bool {
+            return true;
+        });
+        try {
+            return preg_match($pattern, '') !== false;
+        } finally {
+            restore_error_handler();
         }
     }
 

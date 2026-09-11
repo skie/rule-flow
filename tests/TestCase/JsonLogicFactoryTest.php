@@ -34,7 +34,6 @@ class JsonLogicFactoryTest extends TestCase
      */
     public function tearDown(): void
     {
-        unset($this->factory);
         parent::tearDown();
     }
 
